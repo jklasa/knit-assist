@@ -102,6 +102,14 @@ classdef Robot
         function obj = moveRight(obj)
             obj.move([0 -obj.velocity 0]');
         end
+
+        function obj = knit(obj)
+            % TODO knit path
+        end
+
+        function obj = purl(obj)
+            % TODO purl path
+        end
     end
 end
 

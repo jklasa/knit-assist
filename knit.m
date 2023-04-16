@@ -7,69 +7,66 @@ MiniVIE.configurePath;
 % the gripper
 
 % Set robot to ready stage such that the gripper points down
-rb = Robot();
+rob = Robot();
 
-% Init classifier
-gesture_model = GestureClassifier();
+% Init classifiers
+emgModel = EMGClassifier();
+leapModel = LeapClassifier();
 
 % Attempt to get the gripper slightly above where the user's hands will be
 % and directly above the leap controller
 
-while true
-    % Get current data from MyoBand and Leap
-    data = 0;
+StartStopForm([])
+while StartStopForm
+    [state, leapGesture] = leapModel.predict();
+    emgGesture = emgModel.predict();
 
-    % Feed data into classifier and get gesture
-    gesture = gesture_model.predict(data);
-
-    % Check Leap data for general hand positioning
-
-    % If Myo gesture and Leap agree
-    if true
-        switch gesture
-            case "flexion"
-                % Bring robot closer in the x-direction
-            case "extension"
-                % Move robot farther away in x-direction
-            case "abduction"
-                % Move robot left
-            case "adduction"
-                % Move robot right
-            case "fist"
-                % Robot stop. End init stage
-                break
-        end
-    end
-end
-
-%% Knitting
-stitch_model = StitchClassifier();
-num_fists_detected = 0;
-stopping_limit = 10;
-
-while true
-    % Get MyoBand and Leap data
-    data = 0;
-
-    % Check for stopping condition using fist gesture and 
-    gesture = gesture_model.predict(data);
-    if gesture == "fist"
-        if num_fists_detected >= stopping_limit
-            break
-        end
-        num_fists_detected = num_fists_detected + 1;
-    else
-        num_fists_detected = 0;
-    end
-
-    % Classify current knitting state
-    state = stitch_model.predict(data);
     switch state
-        case "knit"
-            % ...
-        case "purl"
-            % ...
+        case 'rest'
+            % Do nothing
+
+        case 'lefthand'
+            % Adjust up/down
+            switch leapGesture
+                case 'flexion'
+                    rob.moveUp();
+                case 'extension'
+                    rob.moveDown();
+                otherwise
+                    % Do nothing
+            end
+
+        case 'righthand'
+            % Adjust closer/further, left/right
+            switch emgGesture
+                case "flexion"
+                    % Bring robot closer
+                    rob.moveIn();
+                case "extension"
+                    % Move robot farther away
+                    rob.moveOut();
+                case "adduction"
+                    % Move robot left
+                    rob.moveLeft();
+                case "abduction"
+                    % Move robot right
+                    rob.moveRight();
+            end
+
+        case 'twohands'
+            % Knit - check which stitch to do
+            switch leapGesture
+                case 'knit'
+                    % Knit stitch
+                case 'purl'
+                    % Purl stich
+                case 'wait'
+                    % ???
+                otherwise
+                    % Do nothing
+            end
+
         otherwise
-            % ...
+            % Do nothing
     end
 end

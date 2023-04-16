@@ -10,28 +10,39 @@ classdef LeapClassifier
             obj.leapSensor = leap;
         end
 
-        function class = predict(obj)
+        function [class, gesture] = predict(obj)
             frame = obj.leapSensor.getData();
+            gesture = '';
 
             if isempty(frame)
                 class = 'rest';
             elseif frame.hands == 1
+                class = 'onehand';
                 angles = obj.getAngles(frame);
-                class = obj.getClass(angles);
+                gesture = obj.getGesture(angles);
             elseif frame.hands == 2
-                class = 'knit';
+                class = 'twohands';
+                angles = obj.getAngles(frame);
+                gesture=  obj.getStitch(angles);
             else
                 class = 'other';
             end
         end
 
-        function class = getClass(~, position)
+        function gesture = getGesture(~, angles)
             % Function to take the leap position data and spit out a class
-            if rad2deg(position.index) < 50
-                class = 'Other';
+            
+            % TODO get other gestures with leap
+            if rad2deg(angles.index) < 50
+                gesture = 'other';
             else
-                class = 'Fist';
+                gesture = 'fist';
             end
+        end
+
+        function stitch = getStitch(~, angles)
+            % TODO check knit vs purl
+            stitch = 'knit';
         end
 
         function angles = getAngles(~, frame)
