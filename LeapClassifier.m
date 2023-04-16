@@ -44,9 +44,25 @@ classdef LeapClassifier
             end
         end
 
-        function stitch = getStitch(~, angles)
+        function stitch = getStitch(~, frame)
             % TODO check knit vs purl
-            stitch = 'knit';
+            handRPY=nan(2,3);
+            for i=1:2
+                nx = frame.hand(i).x_basis' ./ norm(frame.hand(i).x_basis);
+                ny = frame.hand(i).y_basis' ./ norm(frame.hand(i).y_basis);
+                nz = frame.hand(i).z_basis' ./ norm(frame.hand(i).z_basis);
+                R = [nx ny nz];
+                [U,~,V]=svd(R);
+                R=U*V;
+                handRPY(i,:)=tr2rpy(R);
+            end
+            if handRPY(1,1)>0 && handRPY(2,1)>0
+                stitch = 'purl';
+            elseif (handRPY(1,1)<0 && handRPY(2,1)>0) || (handRPY(1,1)>0 && handRPY(2,1)<0)
+                stitch = 'knit';
+            else
+                stitch = 'other';
+            end
         end
 
         function angles = getAngles(~, frame)
