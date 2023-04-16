@@ -9,8 +9,13 @@ MiniVIE.configurePath;
 % Set robot to ready stage such that the gripper points down
 rob = Robot();
 
+% Create EMG Myo Interface Object
+myoband = Inputs.MyoUdp.getInstance();
+myoband.initialize();
+
 % Init classifiers
-emgModel = EMGClassifier();
+gestureModel = EMGClassifier(myoband, '');
+stitchModel = EMGClassifier(myoband, '');
 leapModel = LeapClassifier();
 
 % Attempt to get the gripper slightly above where the user's hands will be
@@ -19,7 +24,6 @@ leapModel = LeapClassifier();
 StartStopForm([])
 while StartStopForm
     [state, leapGesture] = leapModel.predict();
-    emgGesture = emgModel.predict();
 
     switch state
         case 'rest'
@@ -38,6 +42,8 @@ while StartStopForm
 
         case 'righthand'
             % Adjust closer/further, left/right
+            emgGesture = gestureModel.predict();
+
             switch emgGesture
                 case "flexion"
                     % Bring robot closer
@@ -55,6 +61,8 @@ while StartStopForm
 
         case 'twohands'
             % Knit - check which stitch to do
+            emgStitch = stitchModel.predict();
+
             switch leapGesture
                 case 'knit'
                     % Knit stitch

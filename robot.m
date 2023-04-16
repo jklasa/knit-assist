@@ -3,8 +3,8 @@ classdef Robot
         linkbot
         current_pos
         current_angles
-        udp_unity
-        udp_actin
+        udpUnity
+        udpActin
         velocity
     end
     methods
@@ -29,13 +29,13 @@ classdef Robot
             obj.velocity = 0.1;
 
             % Initialize the MATLAB UDP object to the Unity vCyton
-            obj.udp_unity = PnetClass(12002, 12001, '127.0.0.1');
-            obj.udp_unity.initialize();
+            obj.udpUnity = PnetClass(12002, 12001, '127.0.0.1');
+            obj.udpUnity.initialize();
             obj.setVirtual(obj.current_angles);
 
             % Initialize the MATLAB UDP object to the Actin Viewer
-            obj.udp_actin = PnetClass(8889, 8888, '127.0.0.1');
-            obj.udp_actin.initialize();
+            obj.udpActin = PnetClass(8889, 8888, '127.0.0.1');
+            obj.udpActin.initialize();
         end
 
         function pos = anglesToPos(obj, angles)
@@ -61,16 +61,17 @@ classdef Robot
             q_dot = Jinv * vel;
 
             % Compute new joint angle using velocity
-            obj.current_angles = obj.limit_joint_angles(obj.current_angles + q_dot');
+            obj.current_angles = obj.limitJointAngles(obj.current_angles + q_dot');
             obj.current_pos = obj.anglesToPos(obj.current_angles);
 
             % Move virtual robot
             obj.setVirtual(obj.current_angles);
 
             % Move actual robot
+            % TODO move actual robot
         end
 
-        function angles = limit_joint_angles(obj, angles)
+        function angles = limitJointAngles(obj, angles)
             robot = obj.linkbot;
             for i = 1:robot.n
                 angles(i) = min( ...
