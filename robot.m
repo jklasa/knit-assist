@@ -3,7 +3,9 @@ classdef Robot
         linkbot
         current_pos
         current_angles
-        readypos
+        udp_unity
+        udp_actin
+        velocity
     end
     methods
         function obj = Robot()
@@ -22,54 +24,83 @@ classdef Robot
             robai.base = SE3(0, 0, 74);
             obj.linkbot = robai;
 
-            obj.readypos = zeros(8);
-            obj.current_pos = obj.readypos;
-            obj.current_angles = robai.fkine(obj.current_pos);
+            obj.current_angles = [0 pi/4 0 pi/2 0 pi/4 0 0.1];
+            obj.current_pos = obj.anglesToPos(obj.current_angles);
+            obj.velocity = 10;
+
+            % Initialize the MATLAB UDP object to the Unity vCyton
+            obj.udp_unity = PnetClass(12002, 12001, '127.0.0.1');
+            obj.udp_unity.initialize();
+            obj.setVirtual(obj.current_angles);
+
+            % Initialize the MATLAB UDP object to the Actin Viewer
+            obj.udp_actin = PnetClass(8889, 8888, '127.0.0.1');
+            obj.udp_actin.initialize();
         end
 
-        function output = move(obj, vel)
+        function pos = anglesToPos(obj, angles)
+            robot_htms = obj.linkbot.fkine(angles);
+            last_htm = robot_htms(end);
+            pos = last_htm.transl;
+        end
+
+        function obj = setVirtual(obj, angles)
+            obj.udp_unity.putData(typecast([ ...
+                single(reshape(rad2deg(angles(1:7)), 1, [])) ...
+                single(angles(8))], 'uint8')); 
+        end
+
+        function obj = move(obj, vel)
             % Jacobian: joint velocities -> end effector velocities
             J = obj.linkbot.jacob0(obj.current_angles);
 
             % Inv: end effector velocities -> joint velocities
-            Jinv = pinv(J);
+            Jinv = pinv(J(1:3,:));
 
             % Compute joint velocities
-            q_dot = Jinv * [vel(i, :)'; omega(:, i)];
+            q_dot = Jinv * vel;
 
             % Compute new joint angle using velocity
-            obj. = current_joint_angles + q_dot';
+            obj.current_angles = obj.limit_joint_angles(obj.current_angles + q_dot');
+            obj.current_pos = obj.anglesToPos(obj.current_angles);
+
+            % Move virtual robot
+            obj.setVirtual(obj.current_angles);
+
+            % Move actual robot
         end
 
-        function output = moveUp(obj)
-            
-        end
-
-        function output = moveLeft(obj)
-            % this will execute a 1 second move at a rate of 0.1 unit/sec
-            q = obj.curpos(:); % Reset start value
-            dt = 0.01;
-            [~, T] = get_kinematics(q, obj.robotstruct);
-            % Now to achieve an end effector motion, we need to provide a desired
-            % velocity:
-            vXYZ = [0.1 0 0]';
-            for i = 1:100
-                view(0,0)
-                % get the Jacobian based on the current joint angles
-                obj.J = numeric_jacobian(q, obj.robotstruct);
-                % inverse of Jacobian to computer joint velocities
-                Jinv = pinv(obj.J(1:3,:));
-                % compute the joint velocities to achieve the desired end effector position
-                q_dot = Jinv * (vXYZ);
-                % check out result by forward multiplying the Jacobian
-                vExpected = obj.J11 * q_dot
-                q = q + (q_dot.* dt);
-                [A, T] = get_kinematics(q, obj.robotstruct);
-                update_elbow_manipulator(obj.handles, A)
-                pause(dt)
+        function angles = limit_joint_angles(obj, angles)
+            robot = obj.linkbot;
+            for i = 1:robot.n
+                angles(i) = min( ...
+                    robot.links(i).qlim(2), ...
+                    max(robot.links(i).qlim(1), angles(i)));
             end
-            obj.curpos(:) = q(:);
-            output = "move left"
+        end
+
+        function obj = moveIn(obj)
+            obj.move([-obj.velocity 0 0]');
+        end
+
+        function obj = moveOut(obj)
+            obj.move([obj.velocity 0 0]');
+        end
+
+        function obj = moveUp(obj)
+            obj.move([0 0 obj.velocity]');
+        end
+
+        function obj = moveDown(obj)
+            obj.move([0 0 -obj.velocity]');
+        end
+
+        function obj = moveLeft(obj)
+            obj.move([0 obj.velocity 0]');
+        end
+
+        function obj = moveRight(obj)
+            obj.move([0 -obj.velocity 0]');
         end
     end
 end
