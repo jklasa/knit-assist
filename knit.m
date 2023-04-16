@@ -1,4 +1,8 @@
 %% Initialization
+% Set up the MiniVIE path
+cd('C:\GitHub\MiniVIE');
+MiniVIE.configurePath;
+
 % Before running the script, need to train the MyoBand and get the yarn in
 % the gripper
 
