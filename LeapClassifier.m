@@ -16,16 +16,20 @@ classdef LeapClassifier
 
             if isempty(frame)
                 class = 'rest';
+                
             elseif frame.hands == 1
                 class = 'onehand';
                 angles = obj.getAngles(frame);
                 gesture = obj.getGesture(angles);
+
             elseif frame.hands == 2
                 class = 'twohands';
                 angles = obj.getAngles(frame);
-                gesture=  obj.getStitch(angles);
+                gesture = obj.getStitch(angles);
+
             else
                 class = 'other';
+
             end
         end
 
