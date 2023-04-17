@@ -1,4 +1,4 @@
-classdef Robot
+classdef Robot < handle
     properties
         linkbot
         current_pos
@@ -9,6 +9,10 @@ classdef Robot
     end
     methods
         function obj = Robot()
+            % Set up the MiniVIE path
+            cd('C:\GitHub\MiniVIE');
+            MiniVIE.configurePath;
+
             robai = SerialLink([ ...
                 Revolute('a', 0, 'd', 0.177, 'qlim', [deg2rad(-150) deg2rad(150)], 'alpha', -pi/2), ...
                 Revolute('a', 0.126, 'd', 0, 'qlim', [deg2rad(-105) deg2rad(105)], 'alpha', pi/2, 'offset', -pi/2), ...

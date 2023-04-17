@@ -1,51 +1,66 @@
-classdef LeapClassifier
+classdef LeapClassifier < handle
     properties
         leapSensor
+        stateFilter
+        gestureFilter
     end
 
     methods
-        function obj = LeapClassifier()
+        function obj = LeapClassifier(smoothingWindow)
             leap = Inputs.LeapMotion;
             leap.initialize();
             obj.leapSensor = leap;
+            obj.stateFilter = ModeFilter(smoothingWindow);
+            obj.gestureFilter = ModeFilter(smoothingWindow);
         end
 
-        function [class, gesture] = predict(obj)
+        function [state, gesture] = predict(obj)
             frame = obj.leapSensor.getData();
             gesture = '';
 
             if isempty(frame)
-                class = 'rest';
-                
+                state = 'rest';
+
             elseif frame.hands == 1
-                class = 'onehand';
+                state = 'onehand';
                 angles = obj.getAngles(frame);
                 gesture = obj.getGesture(angles);
 
             elseif frame.hands == 2
-                class = 'twohands';
+                state = 'twohands';
                 angles = obj.getAngles(frame);
                 gesture = obj.getStitch(angles);
 
             else
-                class = 'other';
+                state = 'other';
 
             end
+
+            [state, stateChanged] = obj.stateFilter.filter(state);
+
+            if stateChanged
+                % If the state changed, we should reset the gesture history
+                % since gestures have changed.
+                obj.gestureFilter.reset();
+            end
+            gesture = obj.gestureFilter.filter(gesture);
         end
 
         function gesture = getGesture(~, angles)
-            % Function to take the leap position data and spit out a class
-            
-            % TODO get other gestures with leap
-            if rad2deg(angles.index) < 50
-                gesture = 'other';
+            % Function to take the leap position data and determine if
+            % gesture is up or down
+            wristAngle = rad2deg(angles.wrist);
+
+            if wristAngle < 145
+                gesture = 'flexion';
+            elseif wristAngle > 225
+                gesture = 'extension';
             else
-                gesture = 'fist';
+                gesture = 'other';
             end
         end
 
         function stitch = getStitch(~, frame)
-            % TODO check knit vs purl
             handRPY=nan(2,3);
             for i=1:2
                 nx = frame.hand(i).x_basis' ./ norm(frame.hand(i).x_basis);

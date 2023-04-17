@@ -2,11 +2,13 @@ classdef EMGClassifier
     properties
         myoband
         model
+        modeFilter
     end
     methods
-        function obj = EMGClassifier(myoband, trainingDataPath)
+        function obj = EMGClassifier(myoband, trainingDataPath, smoothingWindow)
             obj.myoband = myoband;
             obj.model = obj.loadModel(trainingDataPath);
+            obj.modeFilter = ModeFilter(smoothingWindow);
         end
 
         function model = loadModel(~, trainingDataPath)
@@ -28,7 +30,7 @@ classdef EMGClassifier
             
             % Get the class name
             classNames = obj.model.getClassNames;
-            className = classNames{classDecision};
+            className = obj.modeFilter.filter(classNames{classDecision});
         end
     end
 end

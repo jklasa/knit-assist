@@ -25,6 +25,10 @@ StartStopForm([])
 while StartStopForm
     [state, leapGesture] = leapModel.predict();
 
+    if ~strcmp(gestureModel, 'righthand')
+        gestureModel.modeFilter.reset();
+    end
+
     switch state
         case 'rest'
             % Do nothing
