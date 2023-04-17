@@ -9,10 +9,6 @@ classdef Robot < handle
     end
     methods
         function obj = Robot()
-            % Set up the MiniVIE path
-            cd('C:\GitHub\MiniVIE');
-            MiniVIE.configurePath;
-
             robai = SerialLink([ ...
                 Revolute('a', 0, 'd', 0.177, 'qlim', [deg2rad(-150) deg2rad(150)], 'alpha', -pi/2), ...
                 Revolute('a', 0.126, 'd', 0, 'qlim', [deg2rad(-105) deg2rad(105)], 'alpha', pi/2, 'offset', -pi/2), ...
@@ -49,7 +45,7 @@ classdef Robot < handle
         end
 
         function obj = setVirtual(obj, angles)
-            obj.udp_unity.putData(typecast([ ...
+            obj.udpUnity.putData(typecast([ ...
                 single(reshape(rad2deg(angles(1:7)), 1, [])) ...
                 single(angles(8))], 'uint8')); 
         end
@@ -75,7 +71,12 @@ classdef Robot < handle
             % TODO move actual robot
         end
 
+        function rotate(obj)
+            % TODO rotate robot in one direction
+        end
+
         function angles = limitJointAngles(obj, angles)
+            % TODO fix robot limiting
             robot = obj.linkbot;
             for i = 1:robot.n
                 angles(i) = min( ...

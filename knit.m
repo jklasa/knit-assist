@@ -1,10 +1,19 @@
 %% Initialization
+% Prerequisite: run programs for setup
+%
+% Myo Inputs
+% C:\GitHub\minivie\+Inputs\MyoUdp.exe
+% 
+% Leap Inputs
+% C:\GitHub\hrilabs\Lab3_FingerControl\StartLeapStream.bat
+
 % Set up the MiniVIE path
-cd('C:\GitHub\MiniVIE');
+addpath(genpath('C:\GitHub\MiniVIE'));
 MiniVIE.configurePath;
 
 % Before running the script, need to train the MyoBand and get the yarn in
 % the gripper
+% MiniVIE
 
 % Set robot to ready stage such that the gripper points down
 rob = Robot();
@@ -14,9 +23,9 @@ myoband = Inputs.MyoUdp.getInstance();
 myoband.initialize();
 
 % Init classifiers
-gestureModel = EMGClassifier(myoband, '');
-stitchModel = EMGClassifier(myoband, '');
-leapModel = LeapClassifier();
+gestureModel = EMGClassifier(myoband, '0417_shapiro.trainingData', 8);
+stitchModel = EMGClassifier(myoband, '0417_shapiro.trainingData', 8);
+leapModel = LeapClassifier(8);
 
 % Attempt to get the gripper slightly above where the user's hands will be
 % and directly above the leap controller
@@ -33,51 +42,56 @@ while StartStopForm
         case 'rest'
             % Do nothing
 
-        case 'lefthand'
+        case 'Left'
             % Adjust up/down
             switch leapGesture
                 case 'flexion'
                     rob.moveUp();
+                    disp("UP")
                 case 'extension'
                     rob.moveDown();
+                    disp("DOWN")
                 otherwise
                     % Do nothing
             end
 
-        case 'righthand'
+        case 'Right'
             % Adjust closer/further, left/right
             emgGesture = gestureModel.predict();
 
             switch emgGesture
-                case "flexion"
+                case 'Wrist Flex In'
                     % Bring robot closer
                     rob.moveIn();
-                case "extension"
+                    disp("IN")
+                case 'Wrist Extend Out'
                     % Move robot farther away
                     rob.moveOut();
-                case "adduction"
+                    disp("OUT")
+                case 'Wrist Abduction'
                     % Move robot left
                     rob.moveLeft();
-                case "abduction"
+                    disp("LEFT")
+                case 'Wrist Adduction'
                     % Move robot right
                     rob.moveRight();
+                    disp("RIGHT")
             end
 
         case 'twohands'
             % Knit - check which stitch to do
             emgStitch = stitchModel.predict();
-
-            switch leapGesture
-                case 'knit'
-                    % Knit stitch
-                    rob.knit();
-                case 'purl'
-                    % Purl stich
-                    rob.purl();
-                case 'wait'
-                    % ???
-                otherwise
-                    % Do nothing
+            
+            if strcmp(leapGesture, 'knit') && strcmp(emgStitch, 'Wrist Rotate Out')
+                % Knit stitch
+                rob.knit();
+                disp("KNIT")
+            elseif strcmp(leapGesture, 'purl') && strcmp(emgStitch, 'Wrist Rotate In')
+                % Purl stich
+                rob.purl();
+                disp("PURL")
+            else
+                % Do nothing
             end
 
         otherwise

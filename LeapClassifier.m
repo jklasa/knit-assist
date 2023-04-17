@@ -22,14 +22,17 @@ classdef LeapClassifier < handle
                 state = 'rest';
 
             elseif frame.hands == 1
-                state = 'onehand';
+                if strcmp(frame.hand.name, "Left")
+                    state = 'Left';
+                else
+                    state = 'Right';
+                end
                 angles = obj.getAngles(frame);
                 gesture = obj.getGesture(angles);
 
             elseif frame.hands == 2
                 state = 'twohands';
-                angles = obj.getAngles(frame);
-                gesture = obj.getStitch(angles);
+                gesture = obj.getStitch(frame);
 
             else
                 state = 'other';
@@ -37,7 +40,7 @@ classdef LeapClassifier < handle
             end
 
             [state, stateChanged] = obj.stateFilter.filter(state);
-
+            %stateChanged = false;
             if stateChanged
                 % If the state changed, we should reset the gesture history
                 % since gestures have changed.
