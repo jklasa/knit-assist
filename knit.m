@@ -70,8 +70,10 @@ while StartStopForm
             switch leapGesture
                 case 'knit'
                     % Knit stitch
+                    rob.knit();
                 case 'purl'
                     % Purl stich
+                    rob.purl();
                 case 'wait'
                     % ???
                 otherwise
