@@ -1,4 +1,4 @@
-classdef Robot < handle
+classdef robot < handle
     properties
         linkbot
         current_pos
@@ -8,7 +8,7 @@ classdef Robot < handle
         velocity
     end
     methods
-        function obj = Robot()
+        function obj = robot()
             robai = SerialLink([ ...
                 Revolute('a', 0, 'd', 0.177, 'qlim', [deg2rad(-150) deg2rad(150)], 'alpha', -pi/2), ...
                 Revolute('a', 0.126, 'd', 0, 'qlim', [deg2rad(-105) deg2rad(105)], 'alpha', pi/2, 'offset', -pi/2), ...
