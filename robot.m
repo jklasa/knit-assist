@@ -70,7 +70,12 @@ classdef robot < handle
             % Move actual robot
             % TODO move actual robot
         end
-
+        
+        function vel = calcTrajectory(obj, start_pos, end_pos)
+            % Calculate the velocities needed given the robots start and
+            % end positions
+        end
+        
         function rotate(obj)
             % TODO rotate robot in one direction
         end

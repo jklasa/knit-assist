@@ -1,5 +1,4 @@
 function [A, T] = get_kinematics(theta, robotStruct)
-% TAKEN FROM LAB 5 
 % Get kinematics for the Elbow Manipulator
 % theta is a list of joint angles
 % robot_struct has four fields, which comprise the DH convention for
@@ -10,7 +9,7 @@ function [A, T] = get_kinematics(theta, robotStruct)
 %       coordinates
 
 % grab info from the struct
-numJoints = robotStruct.numJoints;
+numJoints = robotStruct.n-1;
 d = robotStruct.d;
 a = robotStruct.a;
 alpha = robotStruct.alpha;
