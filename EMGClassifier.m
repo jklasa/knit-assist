@@ -1,4 +1,4 @@
-classdef EMGClassifier
+classdef EMGClassifier 
     properties
         myoband
         model
