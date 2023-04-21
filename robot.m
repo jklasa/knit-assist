@@ -72,9 +72,10 @@ classdef robot < handle
         end
 
         % some code to get the circular path of the end effector relative to its current position
-        function path = calcCircularPath(obj, radius, knitType)
+        function vel = calcCircularPath(obj, radius, knitType)
             num_points = 30; % Number of points to calc
             checkpoints = zeros(num_points,3);
+            
             % We need to move in a circular path of a set radius
             % incrementally and back to same starting point
             theta_inc = 360/num_points;
@@ -88,14 +89,8 @@ classdef robot < handle
                 checkpoints(ii,:) = [x,y,z];
                 theta = theta + theta_inc
             end
-
-            % Calculate the actual trajectories
-            T0 = SE3(obj.current_pos)
-            T1 = SE3(obj.current_pos)
-            Ts = ctraj(T0,T1,10)
-            qc = obj.linkbot.ikine(Ts)
-            Ts.animate
-
+            
+            vel = [checkpoints(:,1), checkpoints(:,2), zeros(num_points,1)];
         end
 
         function rotate(obj)
