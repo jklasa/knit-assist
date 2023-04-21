@@ -70,12 +70,34 @@ classdef robot < handle
             % Move actual robot
             % TODO move actual robot
         end
-        
-        function vel = calcTrajectory(obj, start_pos, end_pos)
-            % Calculate the velocities needed given the robots start and
-            % end positions
+
+        % some code to get the circular path of the end effector relative to its current position
+        function path = calcCircularPath(obj, radius, knitType)
+            num_points = 30; % Number of points to calc
+            checkpoints = zeros(num_points,3);
+            % We need to move in a circular path of a set radius
+            % incrementally and back to same starting point
+            theta_inc = 360/num_points;
+            theta = theta_inc;
+
+            % Calculate the cartesian checkpoints when moving in a circle
+            for ii = 1:num_points
+                y = sind(theta)*radius;
+                x = cosd(theta)*radius;
+                z = obj.current_pos(3);
+                checkpoints(ii,:) = [x,y,z];
+                theta = theta + theta_inc
+            end
+
+            % Calculate the actual trajectories
+            T0 = SE3(obj.current_pos)
+            T1 = SE3(obj.current_pos)
+            Ts = ctraj(T0,T1,10)
+            qc = obj.linkbot.ikine(Ts)
+            Ts.animate
+
         end
-        
+
         function rotate(obj)
             % TODO rotate robot in one direction
         end
@@ -123,4 +145,5 @@ classdef robot < handle
         end
     end
 end
+
 
