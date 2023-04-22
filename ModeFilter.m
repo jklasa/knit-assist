@@ -16,7 +16,7 @@ classdef ModeFilter < handle
         function [output, hasChanged] = filter(obj, input)
             obj.previousOutput = obj.currentOutput;
             obj.head = mod(obj.head, obj.windowSize) + 1;
-            obj.history{obj.head} = input;
+            obj.history{obj.head} = convertStringsToChars(input);
 
             cats = categorical(obj.history);
             classes = categories(cats);
