@@ -1,11 +1,13 @@
 classdef Robot < handle
     properties
         linkbot
-        current_pos
-        current_angles
+        currentPos
+        currentAngles
+        gripperWidth
+        stitchRadius
         udpUnity
         udpActin
-        velocity
+        stepVelocity
     end
     methods
         function obj = Robot()
@@ -16,22 +18,24 @@ classdef Robot < handle
                 Revolute('a', 0.097,  'd', 0, 'qlim', [deg2rad(-105) deg2rad(105)], 'alpha', pi/2), ...
                 Revolute('a', 0.072,  'd', 0, 'qlim', [deg2rad(-105) deg2rad(105)], 'alpha', -pi/2), ...
                 Revolute('a', 0, 'd', 0, 'qlim', [deg2rad(-105) deg2rad(105)], 'alpha', pi/2, 'offset', pi/2), ...
-                Revolute('a', 0, 'd', 0.150, 'qlim', [deg2rad(-150) deg2rad(150)], 'alpha', pi/2, 'offset', pi/2), ...
-                Prismatic('theta', -pi/2, 'qlim', [0 25])], ...
+                Revolute('a', 0, 'd', 0.150, 'qlim', [deg2rad(-150) deg2rad(150)], 'alpha', pi/2, 'offset', pi/2)], ...
                 'name', 'robai');
+            % Prismatic('theta', -pi/2, 'qlim', [0 .25])], ...
 
             robai.tool = transl(0, 0, 0.020) * troty(-pi/2);
             robai.base = SE3(0, 0, 0.074);
             obj.linkbot = robai;
 
-            obj.current_angles = [0 pi/4 0 pi/2 0 pi/4 0 0.1];
-            obj.current_pos = obj.anglesToPos(obj.current_angles);
-            obj.velocity = 0.1;
+            obj.currentAngles = [0 pi/4 0 pi/2 0 pi/4 0];
+            obj.currentPos = obj.anglesToPos(obj.currentAngles);
+            obj.stepVelocity = 0.01;
+            obj.gripperWidth = 0.01;
+            obj.stitchRadius = 0.05;
 
             % Initialize the MATLAB UDP object to the Unity vCyton
             obj.udpUnity = PnetClass(12002, 12001, '127.0.0.1');
             obj.udpUnity.initialize();
-            obj.setVirtual(obj.current_angles);
+            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
 
             % Initialize the MATLAB UDP object to the Actin Viewer
             obj.udpActin = PnetClass(8889, 8888, '127.0.0.1');
@@ -44,15 +48,15 @@ classdef Robot < handle
             pos = last_htm.transl;
         end
 
-        function obj = setVirtual(obj, angles)
+        function setVirtual(obj, angles, gripper)
             obj.udpUnity.putData(typecast([ ...
                 single(reshape(rad2deg(angles(1:7)), 1, [])) ...
-                single(angles(8))], 'uint8')); 
+                single(gripper)], 'uint8')); 
         end
 
-        function obj = move(obj, vel)
+        function move(obj, vel)
             % Jacobian: joint velocities -> end effector velocities
-            J = obj.linkbot.jacob0(obj.current_angles);
+            J = obj.linkbot.jacob0(obj.currentAngles);
 
             % Inv: end effector velocities -> joint velocities
             Jinv = pinv(J(1:3,:));
@@ -61,17 +65,27 @@ classdef Robot < handle
             q_dot = Jinv * vel;
 
             % Compute new joint angle using velocity
-            obj.current_angles = obj.limitJointAngles(obj.current_angles + q_dot');
-            obj.current_pos = obj.anglesToPos(obj.current_angles);
+            obj.currentAngles = obj.limitJointAngles(obj.currentAngles, obj.currentAngles + q_dot');
+            obj.currentPos = obj.anglesToPos(obj.currentAngles);
 
             % Move virtual robot
-            obj.setVirtual(obj.current_angles);
+            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
 
             % Move actual robot
             % TODO move actual robot
         end
 
-        % some code to get the circular path of the end effector relative to its current position
+        function openGripper(obj)
+            obj.gripperWidth = 0.25;
+            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
+        end
+
+        function closeGripper(obj)
+            obj.gripperWidth = 0.01;
+            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
+        end
+
+        % Get the circular path of the end effector relative to its current position
         function vel = calcCircularPath(obj, radius, knitType)
             num_points = 30; % Number of points to calc
             checkpoints = zeros(num_points,3);
@@ -85,58 +99,90 @@ classdef Robot < handle
             for ii = 1:num_points
                 y = sind(theta)*radius;
                 x = cosd(theta)*radius;
-                z = obj.current_pos(3);
+                z = obj.currentPos(3);
                 checkpoints(ii,:) = [x,y,z];
-                theta = theta + theta_inc
+                theta = theta + theta_inc;
             end
             
             vel = [checkpoints(:,1), checkpoints(:,2), zeros(num_points,1)];
         end
 
-        function rotate(obj)
-            % TODO rotate robot in one direction
+        function rotateRight(obj)
+            % Compute new joint angle using rotation
+            newAngles = [obj.currentAngles(1) - obj.stepVelocity obj.currentAngles(2:end)];
+            obj.currentAngles = obj.limitJointAngles(obj.currentAngles, newAngles);
+            obj.currentPos = obj.anglesToPos(obj.currentAngles);
+
+            % Move virtual robot
+            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
+
+            % Move actual robot
+            % TODO move actual robot
         end
 
-        function angles = limitJointAngles(obj, angles)
-            % TODO fix robot limiting
+        function rotateLeft(obj)
+            % Compute new joint angle using rotation
+            newAngles = [obj.currentAngles(1) + obj.stepVelocity obj.currentAngles(2:end)];
+            obj.currentAngles = obj.limitJointAngles(obj.currentAngles, newAngles);
+            obj.currentPos = obj.anglesToPos(obj.currentAngles);
+
+            % Move virtual robot
+            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
+
+            % Move actual robot
+            % TODO move actual robot
+        end
+
+        function angles = limitJointAngles(obj, prevAngles, newAngles)
             robot = obj.linkbot;
             for i = 1:robot.n
-                angles(i) = min( ...
-                    robot.links(i).qlim(2), ...
-                    max(robot.links(i).qlim(1), angles(i)));
+                if robot.links(i).qlim(1) >= newAngles(i) || newAngles(i) >= robot.links(i).qlim(2)
+                    angles = prevAngles;
+                    return
+                end
+            end
+            angles = newAngles;
+        end
+
+        function moveIn(obj)
+            obj.move([-obj.stepVelocity 0 0]');
+        end
+
+        function moveOut(obj)
+            obj.move([obj.stepVelocity 0 0]');
+        end
+
+        function moveUp(obj)
+            obj.move([0 0 obj.stepVelocity]');
+        end
+
+        function moveDown(obj)
+            obj.move([0 0 -obj.stepVelocity]');
+        end
+
+        function moveLeft(obj)
+            obj.move([0 obj.stepVelocity 0]');
+        end
+
+        function moveRight(obj)
+            obj.move([0 -obj.stepVelocity 0]');
+        end
+
+        function knit(obj)
+            path = obj.calcCircularPath(obj.stitchRadius, 'knit');
+
+            for vel = path'
+                disp(vel)
+                obj.move(vel);
             end
         end
 
-        function obj = moveIn(obj)
-            obj.move([-obj.velocity 0 0]');
-        end
+        function purl(obj)
+            path = obj.calcCircularPath(obj.stitchRadius, 'purl');
 
-        function obj = moveOut(obj)
-            obj.move([obj.velocity 0 0]');
-        end
-
-        function obj = moveUp(obj)
-            obj.move([0 0 obj.velocity]');
-        end
-
-        function obj = moveDown(obj)
-            obj.move([0 0 -obj.velocity]');
-        end
-
-        function obj = moveLeft(obj)
-            obj.move([0 obj.velocity 0]');
-        end
-
-        function obj = moveRight(obj)
-            obj.move([0 -obj.velocity 0]');
-        end
-
-        function obj = knit(obj)
-            % TODO knit path
-        end
-
-        function obj = purl(obj)
-            % TODO purl path
+            for vel = path'
+                obj.move(vel);
+            end
         end
     end
 end

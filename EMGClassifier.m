@@ -31,7 +31,6 @@ classdef EMGClassifier
             % Get the class name
             classNames = obj.model.getClassNames;
             className = obj.modeFilter.filter(classNames{classDecision});
-            %className = classNames{classDecision};
         end
     end
 end

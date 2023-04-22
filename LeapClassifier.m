@@ -40,7 +40,6 @@ classdef LeapClassifier < handle
             end
 
             [state, stateChanged] = obj.stateFilter.filter(state);
-            %stateChanged = false;
             if stateChanged
                 % If the state changed, we should reset the gesture history
                 % since gestures have changed.

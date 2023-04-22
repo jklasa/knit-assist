@@ -1,35 +1,9 @@
-%% Initialization
-% Prerequisite: run programs for setup
-%
-% Myo Inputs
-% C:\GitHub\minivie\+Inputs\MyoUdp.exe
-% 
-% Leap Inputs
-% C:\GitHub\hrilabs\Lab3_FingerControl\StartLeapStream.bat
-
-% Set up the MiniVIE path
-addpath(genpath('C:\GitHub\MiniVIE'));
-MiniVIE.configurePath;
-
-% Before running the script, need to train the MyoBand and get the yarn in
-% the gripper
-% MiniVIE
+%% Knitting procedure
 
 % Set robot to ready stage such that the gripper points down
 rob = Robot();
 
-% Create EMG Myo Interface Object
-myoband = Inputs.MyoUdp.getInstance();
-myoband.initialize();
-
-% Init classifiers
-gestureModel = EMGClassifier(myoband, '0417_shapiro.trainingData', 8);
-stitchModel = EMGClassifier(myoband, '0417_shapiro.trainingData', 8);
-leapModel = LeapClassifier(8);
-
-% Attempt to get the gripper slightly above where the user's hands will be
-% and directly above the leap controller
-
+% Knitting loop
 StartStopForm([])
 while StartStopForm
     [state, leapGesture] = leapModel.predict();
