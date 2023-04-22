@@ -1,4 +1,4 @@
-classdef Robot < handle
+classdef robot < handle
     properties
         linkbot
         current_pos
@@ -8,7 +8,7 @@ classdef Robot < handle
         velocity
     end
     methods
-        function obj = Robot()
+        function obj = robot()
             robai = SerialLink([ ...
                 Revolute('a', 0, 'd', 0.177, 'qlim', [deg2rad(-150) deg2rad(150)], 'alpha', -pi/2), ...
                 Revolute('a', 0.126, 'd', 0, 'qlim', [deg2rad(-105) deg2rad(105)], 'alpha', pi/2, 'offset', -pi/2), ...
@@ -71,6 +71,28 @@ classdef Robot < handle
             % TODO move actual robot
         end
 
+        % some code to get the circular path of the end effector relative to its current position
+        function vel = calcCircularPath(obj, radius, knitType)
+            num_points = 30; % Number of points to calc
+            checkpoints = zeros(num_points,3);
+            
+            % We need to move in a circular path of a set radius
+            % incrementally and back to same starting point
+            theta_inc = 360/num_points;
+            theta = theta_inc;
+
+            % Calculate the cartesian checkpoints when moving in a circle
+            for ii = 1:num_points
+                y = sind(theta)*radius;
+                x = cosd(theta)*radius;
+                z = obj.current_pos(3);
+                checkpoints(ii,:) = [x,y,z];
+                theta = theta + theta_inc
+            end
+            
+            vel = [checkpoints(:,1), checkpoints(:,2), zeros(num_points,1)];
+        end
+
         function rotate(obj)
             % TODO rotate robot in one direction
         end
@@ -118,4 +140,5 @@ classdef Robot < handle
         end
     end
 end
+
 
