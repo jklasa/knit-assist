@@ -12,3 +12,14 @@
 - [ ] Knitting circular paths
     - [ ] Debug strange pathing
 - [ ] Yarn gripping mechanic?
+
+
+## 04-23-23
+- [ ] Work on physical robot interaction
+- [ ] Verify filtering
+- [ ] Update control logic
+    - [ ] Add gripper interaction - perhaps also left arm leap?
+    - [ ] Left arm leap control - rotation? in/out movement?
+    - [ ] Check left/right arm leap classifications. If it doesnt work well, need to rethink some of the control mechanisms.
+- [ ] Improve leap classifications
+- [ ] Improve robot pathing
