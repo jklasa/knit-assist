@@ -24,3 +24,5 @@
 - [ ] Improve leap classifications
 - [ ] Improve robot pathing
     - [ ] Knit/purl doesn't quite work right for some reason?
+    
+        Are the link constants right? Is it a timing issue? Is it just the virtual cyton causing problems?
