@@ -30,8 +30,9 @@
 - [ ] Improve leap classifications (Amy, currently)
     - [ ] Is mode filtering enough to make this robust?
 - [ ] Improve robot pathing
-    - [ ] Knit/purl doesn't quite work right for some reason?
-    - [ ] Differentiate knitting vs purling in the paths - how should we do this?
+    - [ ] Knit/purl doesn't quite work right for some reason
+        - This kind of works better - checking with different DH parameters (Joel)
+    - [ ] Differentiate knitting vs purling in the paths - how should we do this? **
         - Both are counterclockwise
         - Move center of circle forwards/backwards for each one
             - Knit - back needle
