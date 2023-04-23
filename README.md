@@ -16,12 +16,19 @@
 
 ## 04-23-23
 - [ ] Work on physical robot interaction
+    - [x] Robot interaction works!
+    - [ ] Fix robot manipulations?
+    - [ ] Check linkbot with lab6-like DH parameters
+        - [ ] If doesn't work, replace with lab6 code
 - [ ] Verify filtering
+    - [ ] Does the base idea work?
+    - [ ] Does the resetting work?
 - [ ] Update control logic
-    - [ ] Add gripper interaction - perhaps also left arm leap?
+    - [ ] Add gripper interaction in initialization phase
     - [ ] Left arm leap control - rotation? in/out movement?
-    - [ ] Check left/right arm leap classifications. If it doesnt work well, need to rethink some of the control mechanisms.
+    - [x] Check left/right arm leap classifications.
 - [ ] Improve leap classifications
+    - [ ] Is mode filtering enough to make this robust?
 - [ ] Improve robot pathing
     - [ ] Knit/purl doesn't quite work right for some reason?
     
