@@ -51,12 +51,16 @@ classdef LeapClassifier < handle
         function gesture = getGesture(~, angles)
             % Function to take the leap position data and determine if
             % gesture is up or down
-            wristAngle = rad2deg(angles.wrist);
-
-            if wristAngle < 145
-                gesture = 'flexion';
-            elseif wristAngle > 225
-                gesture = 'extension';
+            %wristAngle = rad2deg(angles.wrist);
+%unfortunately this doesn't work so switching to fingern numbers
+%             if wristAngle < 145
+%                 gesture = 'flexion';
+%             elseif wristAngle > 225
+%                 gesture = 'extension';
+            if sum(rad2deg(angles.index)<50)==3 && ~(sum(rad2deg(angles.middle)<50)==3)
+                gesture = 'one';
+            elseif sum(rad2deg(angles.index)<50)==3 && sum(rad2deg(angles.middle)<50)==3 && ~(sum(rad2deg(angles.ring)<50)==3)
+                gesture = 'two';
             else
                 gesture = 'other';
             end

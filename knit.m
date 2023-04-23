@@ -19,10 +19,10 @@ while StartStopForm
         case 'Left'
             % Adjust up/down
             switch leapGesture
-                case 'flexion'
+                case 'ones'
                     rob.moveUp();
                     disp("UP")
-                case 'extension'
+                case 'two'
                     rob.moveDown();
                     disp("DOWN")
                 otherwise
