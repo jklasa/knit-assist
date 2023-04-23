@@ -23,3 +23,4 @@
     - [ ] Check left/right arm leap classifications. If it doesnt work well, need to rethink some of the control mechanisms.
 - [ ] Improve leap classifications
 - [ ] Improve robot pathing
+    - [ ] Knit/purl doesn't quite work right for some reason?

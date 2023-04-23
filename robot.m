@@ -23,7 +23,7 @@ classdef Robot < handle
                 'name', 'robai');
             % Prismatic('theta', -pi/2, 'qlim', [0 .25])], ...
 
-            robai.tool = transl(0, 0, 0.020) * troty(-pi/2);
+            %robai.tool = transl(0, 0, 0.020) * troty(-pi/2);
             robai.base = SE3(0, 0, 0.074);
             obj.linkbot = robai;
 
@@ -32,7 +32,7 @@ classdef Robot < handle
             obj.stepVelocity = 0.01;
             obj.gripperWidth = 0.01;
             obj.stitchRadius = 0.03;
-            obj.waitTime = 0.15;
+            obj.waitTime = 0.2;
 
             % Initialize the MATLAB UDP object to the Unity vCyton
             obj.udpUnity = PnetClass(12002, 12001, '127.0.0.1');
