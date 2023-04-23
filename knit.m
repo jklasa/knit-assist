@@ -8,9 +8,9 @@ StartStopForm([])
 while StartStopForm
     [state, leapGesture] = leapModel.predict();
 
-    if ~strcmp(gestureModel, 'righthand')
-        gestureModel.modeFilter.reset();
-    end
+%     if ~strcmp(gestureModel, 'Right')
+%         gestureModel.modeFilter.reset();
+%     end
 
     switch state
         case 'rest'
@@ -19,7 +19,7 @@ while StartStopForm
         case 'Left'
             % Adjust up/down
             switch leapGesture
-                case 'ones'
+                case 'one'
                     rob.moveUp();
                     disp("UP")
                 case 'two'
@@ -44,11 +44,11 @@ while StartStopForm
                     disp("OUT")
                 case 'Wrist Abduction'
                     % Move robot left
-                    rob.moveLeft();
+                    rob.rotateLeft();
                     disp("LEFT")
                 case 'Wrist Adduction'
                     % Move robot right
-                    rob.moveRight();
+                    rob.rotateRight();
                     disp("RIGHT")
             end
 

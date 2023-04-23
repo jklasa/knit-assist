@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<userConfig>
+    <!--Tag definition in MATLAB code:
+    charResult = UserConfig.getUserConfigVar(tagName,defaultValue) -->
+    
+    <!--Prefix to add to save data files -->
+    <!--<add key="userFilePrefix"   value="JHMI_TH01_L_"/>-->
+    <add key="userFilePrefix"   value="USER_"/>
+    
+    <!--ROC Table to be loaded and interpolated locally during MiniVIE Session-->
+    <add key="rocTable"         value="WrRocDefaults.xml"/>
+    
+    <!--Signal Source for MiniVIE Session-->
+    <add key="SignalSource"     value="Inputs.SignalSimulator()"/>
+    
+    <!--Signal Filters for MiniVIE Session-->
+    <add key="SignalFilters"    value="{'Inputs.HighPass(20,3,1000)' 'Inputs.MinLimitFilter(0.2)' 'Inputs.ConstraintFilter(-5,5)'}"/>
+
+    <!--Presentation Scenario for MiniVIE Session-->
+    <add key="Scenario"         value="Scenarios.MiniVDisplayScenario()"/>
+
+    <!--Pattern Recognition Parameters-->
+    <add key="FeatureExtract.zcThreshold" value="0.05"/>
+    <add key="FeatureExtract.sscThreshold" value="0.05"/>    
+    
+    <!--joystick Training Parameters -->
+    <add key="joystickId"                   value="0"/><!--System ID for desired joystick-->
+    <add key="joystickButtonNext"           value="[4 8]"/><!--List of buttons to go to next class-->
+    <add key="joystickButtonPrevious"       value="[2 6]"/><!--List of buttons to go to previous class-->
+    <add key="joystickButtonTrain"          value="3"/><!--List of buttons to go to train-->
+    <add key="joystickButtonClear"          value="1"/><!--List of buttons to go to clear data-->
+    <add key="joystickAxis"                 value="1"/><!--axis value for changing class can be (-) to invert axis for next/previous-->
+    <add key="joystickAxisThreshold"        value="0.9"/><!--threshold limit on joystick axis-->
+    
+    <!--MPL NFU Comm parameters-->
+    <add key="mplRouterIp"                  value="192.168.1.1"/>
+    <add key="mplNfuIp"                     value="192.168.1.111"/> <!--(L=192.168.1.111 R=192.168.1.112) /fs/etfs/hostname -->
+    <add key="mplNfuUdpStreamPort"          value="6300"/>          <!--(L=6300 R=6310) /fs/etfs/telem_port -->
+    <add key="mplNfuTcpCommandPort"         value="6200"/>          <!--(L=6200 R=6210) /fs/etfs/cmd_port-->
+    <add key="mplNfuUdpCommandPort"         value="6201"/>          <!--(L=6201 R=6211) /fs/etfs/cmd_udp_port-->
+    <add key="mplNfuUdpCommandPortLocal"    value="52000"/>         <!--(L=52000 R=52010)-->
+
+    <!-- Vulcan X Command port typically:  
+    MUD/Command Port (L=9024 R=9027) 
+    Percept/Sensory Port (L=9026 R=9029) -->
+    <add key="mplVulcanXIpAddress"          value="127.0.0.1"/>
+    <add key="mplVulcanXCommandPort"        value="9024"/>
+    <add key="mplVulcanXSensoryPort"        value="9026"/>
+    
+    <!-- Myo Stream Ports -->
+    <add key="myoUdpPort1"    value="10001"/>
+    <add key="myoUdpPort2"    value="10002"/>
+    <add key="myoUdpRate"    value="200"/>    
+    <add key="myoElbowEnable"    value="1"/>
+    <add key="myoElbowShoulder"    value="0"/>
+    <add key="myoElbowShoulderLeft"    value="0"/>
+
+    <!-- Tactor Ports 
+    Options include:
+    DEBUG - Echo commands to console only
+    COM9 - send tactor via serial bluetooth
+    192.168.1.1:12001 - send tactor via UDP
+    '' - Null / Disable
+    -->
+    <!-- Tactor Types 
+    Options include:
+    ServoUDP
+    VibroUDP
+    VibroBluetooth
+    '' - Null / Disable
+    -->
+    <add key="TactorComPort" value=""/>
+    <add key="TactorType" value="VibroUDP"/>
+    
+    
+    <!-- User defined joint limits
+     Optionally limit the range of each joint prior to sending to the MPL
+     Value format: "MinAngle, MaxAngle" (degrees)
+     
+     TODO: Currently only upper arm limits are parsed
+     -->
+    <add key="ApplyUserJointLimits"   value="true"/>
+
+    <add key="SHOULDER_FE_LIMITS"     value=" -35, 170" />
+    <add key="SHOULDER_AB_AD_LIMITS"  value=" -90, 0" />
+    <add key="HUMERAL_ROT_LIMITS"     value=" -35, 80" />
+    <add key="ELBOW_LIMITS"           value="  10, 130" />
+
+    <add key="WRIST_ROT_LIMITS"       value=" -85, 85" />
+    <add key="WRIST_AB_AD_LIMITS"     value=" -45, 45" />
+    <add key="WRIST_FE_LIMITS"        value=" -60, 60" />
+
+    <add key="INDEX_AB_AD_LIMITS"     value=" -20, 0" />
+    <add key="INDEX_MCP_LIMITS"       value=" -40, 85" />
+    <add key="INDEX_PIP_LIMITS"       value="   0, 100" />
+    <add key="INDEX_DIP_LIMITS"       value="   0, 80" />
+
+    <add key="MIDDLE_AB_AD_LIMITS"    value=" -20, 0" />
+    <add key="MIDDLE_MCP_LIMITS"      value=" -40, 85" />
+    <add key="MIDDLE_PIP_LIMITS"      value="   0, 100" />
+    <add key="MIDDLE_DIP_LIMITS"      value="   0, 80" />
+
+    <add key="RING_AB_AD_LIMITS"      value="   0, 20" />
+    <add key="RING_MCP_LIMITS"        value=" -40, 85" />
+    <add key="RING_PIP_LIMITS"        value="   0, 100" />
+    <add key="RING_DIP_LIMITS"        value="   0, 80" />
+
+    <add key="LITTLE_AB_AD_LIMITS"    value="   0, 20" />
+    <add key="LITTLE_MCP_LIMITS"      value=" -40, 85" />
+    <add key="LITTLE_PIP_LIMITS"      value="   0, 100" />
+    <add key="LITTLE_DIP_LIMITS"      value="   0, 80" />
+
+    <add key="THUMB_CMC_AB_AD_LIMITS" value="  8, 135" />
+    <add key="THUMB_CMC_FE_LIMITS"    value="   8, 80" />
+    <add key="THUMB_MCP_LIMITS"       value="   8, 80" />
+    <add key="THUMB_DIP_LIMITS"       value=" -12, 60" />
+
+    <!-- Joint direction parameters to flip joint direction +/- 1 -->    
+    <add key="WRIST_FE_DIRECTION"        value="+1" />
+    
+</userConfig>
