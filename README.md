@@ -8,6 +8,7 @@
 - [x] Need to add the cue to do the training data part of the script
 - [ ] Update control logic
 - [ ] Verify in lab: ModeFilter, movement directions
-- [ ] Add interaction with actin viewer
+- [x] Add interaction with actin viewer
 - [ ] Knitting circular paths
+    - [ ] Debug strange pathing
 - [ ] Yarn gripping mechanic?

@@ -8,6 +8,7 @@ classdef Robot < handle
         udpUnity
         udpActin
         stepVelocity
+        waitTime
     end
     methods
         function obj = Robot()
@@ -30,16 +31,18 @@ classdef Robot < handle
             obj.currentPos = obj.anglesToPos(obj.currentAngles);
             obj.stepVelocity = 0.01;
             obj.gripperWidth = 0.01;
-            obj.stitchRadius = 0.05;
+            obj.stitchRadius = 0.03;
+            obj.waitTime = 0.15;
 
             % Initialize the MATLAB UDP object to the Unity vCyton
             obj.udpUnity = PnetClass(12002, 12001, '127.0.0.1');
             obj.udpUnity.initialize();
-            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
+            obj.setVirtualAngles(obj.currentAngles, obj.gripperWidth);
 
             % Initialize the MATLAB UDP object to the Actin Viewer
             obj.udpActin = PnetClass(8889, 8888, '127.0.0.1');
             obj.udpActin.initialize();
+            obj.setPhysicalAngles(obj.currentAngles, obj.gripperWidth);
         end
 
         function pos = anglesToPos(obj, angles)
@@ -48,10 +51,20 @@ classdef Robot < handle
             pos = last_htm.transl;
         end
 
-        function setVirtual(obj, angles, gripper)
+        function setAngles(obj, angles, gripper)
+            obj.setVirtualAngles(angles, gripper);
+            obj.setPhysicalAngles(angles, gripper);
+        end
+
+        function setVirtualAngles(obj, angles, gripper)
             obj.udpUnity.putData(typecast([ ...
                 single(reshape(rad2deg(angles(1:7)), 1, [])) ...
                 single(gripper)], 'uint8')); 
+        end
+
+        function setPhysicalAngles(obj, angles, gripper)
+            joints = [angles gripper];
+            obj.udpActin.putData(typecast(double(joints), 'uint8')); 
         end
 
         function move(obj, vel)
@@ -68,21 +81,21 @@ classdef Robot < handle
             obj.currentAngles = obj.limitJointAngles(obj.currentAngles, obj.currentAngles + q_dot');
             obj.currentPos = obj.anglesToPos(obj.currentAngles);
 
-            % Move virtual robot
-            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
+            % Move virtual and physical robot
+            obj.setAngles(obj.currentAngles, obj.gripperWidth);
 
-            % Move actual robot
-            % TODO move actual robot
+            % Wait for robot or simulation to move
+            pause(obj.waitTime);
         end
 
         function openGripper(obj)
             obj.gripperWidth = 0.25;
-            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
+            obj.setAngles(obj.currentAngles, obj.gripperWidth);
         end
 
         function closeGripper(obj)
             obj.gripperWidth = 0.01;
-            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
+            obj.setAngles(obj.currentAngles, obj.gripperWidth);
         end
 
         % Get the circular path of the end effector relative to its current position
@@ -93,7 +106,10 @@ classdef Robot < handle
             % We need to move in a circular path of a set radius
             % incrementally and back to same starting point
             theta_inc = 360/num_points;
-            theta = theta_inc;
+            if strcmp(knitType, 'purl')
+                theta_inc = theta_inc * -1;
+            end
+            theta = 0;
 
             % Calculate the cartesian checkpoints when moving in a circle
             for ii = 1:num_points
@@ -113,11 +129,8 @@ classdef Robot < handle
             obj.currentAngles = obj.limitJointAngles(obj.currentAngles, newAngles);
             obj.currentPos = obj.anglesToPos(obj.currentAngles);
 
-            % Move virtual robot
-            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
-
-            % Move actual robot
-            % TODO move actual robot
+            % Move robot
+            obj.setAngles(obj.currentAngles, obj.gripperWidth);
         end
 
         function rotateLeft(obj)
@@ -126,11 +139,8 @@ classdef Robot < handle
             obj.currentAngles = obj.limitJointAngles(obj.currentAngles, newAngles);
             obj.currentPos = obj.anglesToPos(obj.currentAngles);
 
-            % Move virtual robot
-            obj.setVirtual(obj.currentAngles, obj.gripperWidth);
-
-            % Move actual robot
-            % TODO move actual robot
+            % Move robot
+            obj.setAngles(obj.currentAngles, obj.gripperWidth);
         end
 
         function angles = limitJointAngles(obj, prevAngles, newAngles)
@@ -172,7 +182,6 @@ classdef Robot < handle
             path = obj.calcCircularPath(obj.stitchRadius, 'knit');
 
             for vel = path'
-                disp(vel)
                 obj.move(vel);
             end
         end
