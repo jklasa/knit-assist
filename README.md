@@ -18,18 +18,21 @@
 - [ ] Work on physical robot interaction
     - [x] Robot interaction works!
     - [ ] Fix robot manipulations?
-    - [ ] Check linkbot with lab6-like DH parameters
+    - [ ] Check linkbot with lab6-like DH parameters (Joel, currently)
         - [ ] If doesn't work, replace with lab6 code
-- [ ] Verify filtering
+- [ ] Verify filtering **
     - [ ] Does the base idea work?
     - [ ] Does the resetting work?
 - [ ] Update control logic
-    - [ ] Add gripper interaction in initialization phase
-    - [ ] Left arm leap control - rotation? in/out movement?
+    - [ ] Add gripper interaction in initialization phase **
+    - [ ] Left arm leap control - rotation? in/out movement? (Amy, currently)
     - [x] Check left/right arm leap classifications.
-- [ ] Improve leap classifications
+- [ ] Improve leap classifications (Amy, currently)
     - [ ] Is mode filtering enough to make this robust?
 - [ ] Improve robot pathing
     - [ ] Knit/purl doesn't quite work right for some reason?
-    
-        Are the link constants right? Is it a timing issue? Is it just the virtual cyton causing problems?
+    - [ ] Differentiate knitting vs purling in the paths - how should we do this?
+        - Both are counterclockwise
+        - Move center of circle forwards/backwards for each one
+            - Knit - back needle
+            - Purl - front needle
