@@ -263,11 +263,11 @@ classdef Robot < handle
             angles = newAngles;
         end
 
-        function moveIn(obj)
+        function moveLeft(obj)
             obj.move([-obj.stepVelocity 0 0]');
         end
 
-        function moveOut(obj)
+        function moveRight(obj)
             obj.move([obj.stepVelocity 0 0]');
         end
 
@@ -279,11 +279,11 @@ classdef Robot < handle
             obj.move([0 0 -obj.stepVelocity]');
         end
 
-        function moveLeft(obj)
+        function moveIn(obj)
             obj.move([0 obj.stepVelocity 0]');
         end
 
-        function moveRight(obj)
+        function moveOut(obj)
             obj.move([0 -obj.stepVelocity 0]');
         end
 
