@@ -12,8 +12,7 @@ classdef EMGClassifier
         end
 
         function model = loadModel(~, trainingDataPath)
-            trainData = PatternRecognition.TrainingData();
-            trainData.loadTrainingData(trainingDataPath);
+            trainData = PatternRecognition.TrainingData(trainingDataPath);
             
             model = SignalAnalysis.Lda;
             model.initialize(trainData);

@@ -9,7 +9,7 @@ function [A, T] = get_kinematics(theta, robotStruct)
 %       coordinates
 
 % grab info from the struct
-numJoints = robotStruct.n-1;
+numJoints = robotStruct.numJoints;
 d = robotStruct.d;
 a = robotStruct.a;
 alpha = robotStruct.alpha;
@@ -59,4 +59,3 @@ A = [
     s_theta  c_theta*c_alpha -c_theta*s_alpha   linkLength*s_theta;
     0        s_alpha          c_alpha           linkOffset;
     0        0                0                 1;];
-
