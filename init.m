@@ -8,6 +8,13 @@
 % Leap Inputs
 %system('C:\GitHub\hrilabs\Lab3_FingerControl\StartLeapStream.bat')
 
+% Cyton Viewer
+% C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\bin\cytonViewer.exe
+% 
+% C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\bin\cytonCommandExample.exe
+% 
+% remoteCommandServerPlugin.ecp
+
 %%
 % Set up the MiniVIE path
 addpath(genpath('C:\GitHub\MiniVIE'));
@@ -25,8 +32,8 @@ myoband.initialize();
 
 %%
 % Init classifiers
-gestureModel = EMGClassifier(myoband, 'Joel_04232027.trainingData', 8);
-stitchModel = EMGClassifier(myoband, 'Joel_04232027_stitch.trainingData', 8);
+gestureModel = EMGClassifier(myoband, 'amy_all.trainingData', 8);
+stitchModel = EMGClassifier(myoband, 'amy_all.trainingData', 8);
 leapModel = LeapClassifier(8);
 
 %%

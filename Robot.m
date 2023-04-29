@@ -16,12 +16,12 @@ classdef Robot < handle
             obj.robotStruct = obj.createDHCyton();
             obj.jointConstraints = [-150 150; -110 110; -110 110; -110 110; -110 110; -115 115; -170 170];
 
-            obj.currentAngles = [0 pi/4 0 pi/2 0 pi/4 0];
+            obj.currentAngles = [0 pi/8 0 pi/3 0 pi/4 0];
             %obj.currentPos = obj.anglesToPos(obj.currentAngles);
 
             obj.stepVelocity = 0.01;
             obj.gripperWidth = 0.01;
-            obj.stitchRadius = 0.01;
+            obj.stitchRadius = 0.02;
             obj.waitTime = 0.1;
 
             % Initialize the MATLAB UDP object to the Unity vCyton
@@ -168,6 +168,10 @@ classdef Robot < handle
             pause(obj.waitTime);
         end
 
+        function home(obj)
+            obj.setAngles([0 pi/8 0 pi/3 0 pi/4 0], obj.gripperWidth);
+        end
+
         function setVirtualAngles(obj, angles, gripper)
             obj.udpUnity.putData(typecast([ ...
                 single(reshape(rad2deg(angles(1:7)), 1, [])) ...
@@ -197,19 +201,19 @@ classdef Robot < handle
             obj.setAngles(obj.currentAngles, obj.gripperWidth);
         end
 
-        function openGripper(obj)
+        function open(obj)
             obj.gripperWidth = 0.25;
             obj.setAngles(obj.currentAngles, obj.gripperWidth);
         end
 
-        function closeGripper(obj)
+        function close(obj)
             obj.gripperWidth = 0.002;
             obj.setAngles(obj.currentAngles, obj.gripperWidth);
         end
 
         % Get the circular path of the end effector relative to its current position
         function vel = calcCircularPath(obj, radius, knitType)
-            num_points = 30; % Number of points to calc
+            num_points = 60; % Number of points to calc
             checkpoints = zeros(num_points,3);
 
             % We need to move in a circular path of a set radius
@@ -263,43 +267,41 @@ classdef Robot < handle
             angles = newAngles;
         end
 
-        function moveLeft(obj)
+        function left(obj)
             obj.move([-obj.stepVelocity 0 0]');
         end
 
-        function moveRight(obj)
+        function right(obj)
             obj.move([obj.stepVelocity 0 0]');
         end
 
-        function moveUp(obj)
+        function up(obj)
             obj.move([0 0 obj.stepVelocity]');
         end
 
-        function moveDown(obj)
+        function down(obj)
             obj.move([0 0 -obj.stepVelocity]');
         end
 
-        function moveIn(obj)
+        function in(obj)
             obj.move([0 obj.stepVelocity 0]');
         end
 
-        function moveOut(obj)
+        function out(obj)
             obj.move([0 -obj.stepVelocity 0]');
         end
 
         function knit(obj)
             path = obj.calcCircularPath(obj.stitchRadius, 'knit');
-
             for vel = path'
-                obj.move(vel);
+                obj.move(vel ./ 2);
             end
         end
 
         function purl(obj)
             path = obj.calcCircularPath(obj.stitchRadius, 'purl');
-
             for vel = path'
-                obj.move(vel);
+                obj.move(vel ./ 2);
             end
         end
     end

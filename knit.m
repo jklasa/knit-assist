@@ -1,6 +1,7 @@
 %% Knitting procedure
 
-waitTime = 0.2;
+gestureWait = 0.05;
+stitchWait = 0.2;
 
 % Knitting loop
 StartStopForm([])
@@ -18,10 +19,10 @@ while StartStopForm
             % Adjust up/down
             switch leapGesture
                 case 'one'
-                    rob.moveUp();
+                    rob.up();
                     result = 'UP';
                 case 'two'
-                    rob.moveDown();
+                    rob.down();
                     result = 'DOWN';
                 otherwise
                     % Do nothing
@@ -34,44 +35,47 @@ while StartStopForm
             switch emgGesture
                 case 'Wrist Flex In'
                     % Bring robot closer
-                    rob.moveIn();
+                    rob.in();
                     result = 'IN';
                 case 'Wrist Extend Out'
                     % Move robot farther away
-                    rob.moveOut();
+                    rob.out();
                     result = 'OUT';
                 case 'Wrist Abduction'
                     % Move robot left
-                    rob.rotateLeft();
+                    rob.left();
                     result = 'LEFT';
                 case 'Wrist Adduction'
                     % Move robot right
-                    rob.rotateRight();
+                    rob.right();
                     result = 'RIGHT';
             end
+            pause(gestureWait);
 
         case 'twohands'
             % Knit - check which stitch to do
             emgStitch = stitchModel.predict();
             
-            if strcmp(leapGesture, 'knit') && strcmp(emgStitch, 'Wrist Rotate Out')
+            %if strcmp(leapGesture, 'knit') && strcmp(emgStitch, 'Wrist Rotate Out')
+            if strcmp(emgStitch, 'Wrist Rotate Out')
                 % Knit stitch
                 rob.knit();
-                gestureModel.modeFilter.reset();
+                stitchModel.modeFilter.reset();
                 result = 'KNIT';
-            elseif strcmp(leapGesture, 'purl') && strcmp(emgStitch, 'Wrist Rotate In')
+            %elseif strcmp(leapGesture, 'purl') && strcmp(emgStitch, 'Wrist Rotate In')
+            elseif strcmp(emgStitch, 'Wrist Rotate In')
                 % Purl stich
                 rob.purl();
-                gestureModel.modeFilter.reset();
+                stitchModel.modeFilter.reset();
                 result = 'PURL';
             else
                 % Do nothing
             end
+            pause(stitchWait);
 
         otherwise
             % Do nothing
     end
 
-    pause(waitTime);
     disp([state, leapGesture, emgGesture, emgStitch, result])
 end
