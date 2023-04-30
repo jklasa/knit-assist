@@ -1,7 +1,7 @@
 %% Knitting procedure
 
 autoBreak = true;
-autoBreakSensitivity = 5; % Set to 1 for no sensitivity consideration
+autoBreakSensitivity = 5; % Set to 0.5 for no sensitivity consideration
 knitWaitTime = 0.5;
 adjustmentWaitTime = 0.1;
 
@@ -19,6 +19,7 @@ while StartStopForm
     if ~strcmp(state, 'rest')
         % Break if desired
         if autoBreak && strcmp(breakFilter.filter(leapGesture), 'openHand')
+            disp('AUTOBREAK!');
             break
         end
 
@@ -45,7 +46,8 @@ while StartStopForm
         breakFilter.filter('other');
     end
 
-    disp([state, leapGesture, emgStitch, result])
+    % Debugging output
+    disp([state, leapGesture, emgStitch, result]);
 
     % Wait depending on if we just did a stitch
     if strcmp(result, 'none')

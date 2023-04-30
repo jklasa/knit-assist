@@ -292,6 +292,7 @@ classdef Robot < handle
         end
 
         function knit(obj)
+            disp('knitting');
             path = obj.calcCircularPath(obj.stitchRadius, 'knit');
             for vel = path'
                 obj.move(vel ./ 2);
@@ -299,6 +300,7 @@ classdef Robot < handle
         end
 
         function purl(obj)
+            disp('purling');
             path = obj.calcCircularPath(obj.stitchRadius, 'purl');
             for vel = path'
                 obj.move(vel ./ 2);

@@ -59,6 +59,8 @@ classdef LeapClassifier < handle
                 gesture = 'twoFingers';
             elseif sum([rad2deg(angles.index)<50 rad2deg(angles.middle)<50 rad2deg(angles.ring)<50])==9
                 gesture = 'openHand';
+            elseif sum([rad2deg(angles.index)>50 rad2deg(angles.middle)>50 rad2deg(angles.ring)>50])==9
+                gesture = 'closedHand';
             else
                 gesture = 'other';
             end

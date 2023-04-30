@@ -1,7 +1,7 @@
 %% Robot Position Adjustment
 
 autoBreak = true;
-autoBreakSensitivity = 5; % Set to 1 for no sensitivity consideration
+autoBreakSensitivity = 5; % Set to 0.5 for no sensitivity consideration
 adjustmentWaitTime = 0.1;
 
 % Set a ModeFilter so we don't break out of the loop
@@ -34,8 +34,13 @@ while StartStopForm
                     result = 'DOWN';
                 case 'openHand'
                     if autoBreak && strcmp(breakFilter.filter(leapGesture), 'openHand')
+                        disp('AUTOBREAK!');
                         break
                     end
+                    result = 'BREAK';
+                case 'closedHand'
+                    rob.close();
+                    result = 'CLOSE';
                 otherwise
                     % Do nothing
             end
@@ -72,6 +77,9 @@ while StartStopForm
         breakFilter.filter('other');
     end
 
-    disp([state, leapGesture, emgGesture, result])
+    % Debugging Output
+    disp([state, leapGesture, emgGesture, result]);
+
+    % Pause for dramatic effect
     pause(adjustmentWaitTime);
 end
