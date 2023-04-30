@@ -25,15 +25,15 @@ classdef LeapClassifier < handle
 
             elseif frame.hands == 1
                 if strcmp(frame.hand.name, "Left")
-                    state = 'Left';
+                    state = 'leftHand';
                 else
-                    state = 'Right';
+                    state = 'rightHand';
                 end
                 angles = obj.getAngles(frame);
                 gesture = obj.getGesture(angles);
 
             elseif frame.hands == 2
-                state = 'twohands';
+                state = 'bothHands';
                 gesture = obj.getStitch(frame);
 
             else
@@ -53,11 +53,12 @@ classdef LeapClassifier < handle
         function gesture = getGesture(~, angles)
             % Function to take the leap position data and determine if
             % gesture is up or down
-            %wristAngle = rad2deg(angles.wrist);
             if sum(rad2deg(angles.index)<50)==3 && ~(sum(rad2deg(angles.middle)<50)==3)
-                gesture = 'one';
+                gesture = 'oneFinger';
             elseif sum(rad2deg(angles.index)<50)==3 && sum(rad2deg(angles.middle)<50)==3 && ~(sum(rad2deg(angles.ring)<50)==3)
-                gesture = 'two';
+                gesture = 'twoFingers';
+            elseif sum([rad2deg(angles.index)<50 rad2deg(angles.middle)<50 rad2deg(angles.ring)<50])==9
+                gesture = 'openHand';
             else
                 gesture = 'other';
             end

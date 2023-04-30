@@ -2,18 +2,19 @@
 % Connect MyoBand first!
 
 %%
+% Programs
+
 % Myo Inputs
-%system('C:\GitHub\minivie\+Inputs\MyoUdp.exe')
+% C:\GitHub\minivie\+Inputs\MyoUdp.exe
 
 % Leap Inputs
-%system('C:\GitHub\hrilabs\Lab3_FingerControl\StartLeapStream.bat')
+% C:\GitHub\hrilabs\Lab3_FingerControl\StartLeapStream.bat
 
 % Cyton Viewer
 % C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\bin\cytonViewer.exe
-% 
 % C:\Program Files (x86)\Robai\Cyton Epsilon 1500 Viewer_4.0.23-20160811-b59\bin\cytonCommandExample.exe
 % 
-% remoteCommandServerPlugin.ecp
+% Plugin: remoteCommandServerPlugin.ecp
 
 %%
 % Set up the MiniVIE path
@@ -32,8 +33,11 @@ myoband.initialize();
 
 %%
 % Init classifiers
-gestureModel = EMGClassifier(myoband, 'amy_all.trainingData', 8);
-stitchModel = EMGClassifier(myoband, 'amy_all.trainingData', 8);
+dataName = 'amy_all';
+dataFile = strcat('data/', dataName, '.trainingData');
+
+gestureModel = EMGClassifier(myoband, dataFile, 8);
+stitchModel = EMGClassifier(myoband, dataFile, 4);
 leapModel = LeapClassifier(8);
 
 %%
