@@ -1,17 +1,23 @@
 %% Knitting procedure
 
 autoBreak = true;
-autoBreakSensitivity = 5; % Set to 0.5 for no sensitivity consideration
-knitWaitTime = 0.5;
+autoBreakSensitivity = 40; % Set to 1 for no sensitivity consideration
+knitWaitTime = 3;
 adjustmentWaitTime = 0.1;
 
 % Set a ModeFilter so we don't break out of the loop
 % so easily
-breakFilter = ModeFilter(autoBreakSensitivity * 2);
+breakFilter = ModeFilter(autoBreakSensitivity, autoBreakSensitivity);
+
+% Clear out filter histories
+leapModel.reset();
+stitchModel.reset();
+
+% Trust the robot is where we want it
+rob.setAdjustedHome()
 
 % Knitting loop
-StartStopForm([])
-while StartStopForm
+while true
     [state, leapGesture] = leapModel.predict();
     emgStitch = 'none';
     result = 'none';
@@ -26,16 +32,18 @@ while StartStopForm
         % Knit - check which stitch to do
         emgStitch = stitchModel.predict();
 
-        if strcmp(emgStitch, 'Wrist Rotate Out')
+        if strcmp(emgStitch, 'Wrist Rotate Out') %|| strcmp(emgStitch, 'Wrist Adduction')
             % Knit stitch
             rob.knit();
             stitchModel.modeFilter.reset();
             result = 'KNIT';
-        elseif strcmp(emgStitch, 'Wrist Rotate In')
+            rob.adjustedHome();
+        elseif strcmp(emgStitch, 'Wrist Rotate In') %|| strcmp(emgStitch, 'Wrist Abduction')
             % Purl stich
             rob.purl();
             stitchModel.modeFilter.reset();
             result = 'PURL';
+            rob.adjustedHome();
         else
             % Do nothing
         end

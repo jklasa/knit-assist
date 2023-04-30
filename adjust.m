@@ -1,16 +1,19 @@
 %% Robot Position Adjustment
 
 autoBreak = true;
-autoBreakSensitivity = 5; % Set to 0.5 for no sensitivity consideration
+autoBreakSensitivity = 40; % Set to 1 for no sensitivity consideration
 adjustmentWaitTime = 0.1;
 
 % Set a ModeFilter so we don't break out of the loop
 % so easily
-breakFilter = ModeFilter(autoBreakSensitivity * 2);
+breakFilter = ModeFilter(autoBreakSensitivity, autoBreakSensitivity);
+
+% Clear out filter histories
+leapModel.reset();
+gestureModel.reset();
 
 % Adjustment loop
-StartStopForm([])
-while StartStopForm
+while true
     [state, leapGesture] = leapModel.predict();
     emgGesture = 'none';
     result = 'none';

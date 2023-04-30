@@ -5,11 +5,13 @@ classdef ModeFilter < handle
         head = 1
         currentOutput
         previousOutput
+        threshold
     end
 
     methods
-        function obj = ModeFilter(windowSize)
+        function obj = ModeFilter(windowSize, threshold)
             obj.windowSize = windowSize;
+            obj.threshold = threshold;
             obj.reset();
         end
 
@@ -22,9 +24,13 @@ classdef ModeFilter < handle
             classes = categories(cats);
             counts = countcats(cats);
 
-            [~, modeIdx] = max(counts);
+            [modeCount, modeIdx] = max(counts);
 
-            output = string(classes(modeIdx));
+            if modeCount > obj.threshold
+                output = string(classes(modeIdx));
+            else
+                output = 'other';
+            end
             obj.currentOutput = output;
 
             if nargout == 2

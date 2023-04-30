@@ -7,13 +7,22 @@ classdef LeapClassifier < handle
     end
 
     methods
-        function obj = LeapClassifier(smoothingWindow)
+        function obj = LeapClassifier(smoothingWindow, smoothingThreshold)
             leap = Inputs.LeapMotion;
             leap.initialize();
             obj.leapSensor = leap;
-            obj.stateFilter = ModeFilter(smoothingWindow);
-            obj.gestureFilter = ModeFilter(smoothingWindow);
+            obj.stateFilter = ModeFilter(smoothingWindow, smoothingThreshold);
+            obj.gestureFilter = ModeFilter(smoothingWindow, smoothingThreshold);
             obj.stitchThreshold = pi/4;
+        end
+
+        function delete(obj)
+            obj.leapSensor.hUdp.close()
+        end
+
+        function reset(obj)
+            obj.stateFilter.reset();
+            obj.gestureFilter.reset();
         end
 
         function [state, gesture] = predict(obj)
@@ -59,7 +68,7 @@ classdef LeapClassifier < handle
                 gesture = 'twoFingers';
             elseif sum([rad2deg(angles.index)<50 rad2deg(angles.middle)<50 rad2deg(angles.ring)<50])==9
                 gesture = 'openHand';
-            elseif sum([rad2deg(angles.index)>50 rad2deg(angles.middle)>50 rad2deg(angles.ring)>50])==9
+            elseif sum([rad2deg(angles.index)>50 rad2deg(angles.middle)>50 rad2deg(angles.ring)>50 rad2deg(angles.pinkie)>50])==12
                 gesture = 'closedHand';
             else
                 gesture = 'other';

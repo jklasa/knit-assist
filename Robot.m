@@ -10,18 +10,21 @@ classdef Robot < handle
         waitTime
         robotStruct
         jointConstraints
+        homeAngles
+        adjustedHomeAngles
     end
     methods
-        function obj = Robot()
+        function obj = Robot(gripper)
             obj.robotStruct = obj.createDHCyton();
             obj.jointConstraints = [-150 150; -110 110; -110 110; -110 110; -110 110; -115 115; -170 170];
 
-            obj.currentAngles = [0 pi/8 0 pi/3 0 pi/4 0];
+            obj.homeAngles = [0 pi/5 0 pi/4 0 pi/2 0];
+            obj.adjustedHomeAngles = [0 pi/5 0 pi/4 0 pi/2 0];
+            obj.currentAngles = obj.homeAngles;
             %obj.currentPos = obj.anglesToPos(obj.currentAngles);
 
             obj.stepVelocity = 0.01;
-            obj.gripperWidth = 0.01;
-            obj.stitchRadius = 0.02;
+            obj.stitchRadius = 0.0125;
             obj.waitTime = 0.1;
 
             % Initialize the MATLAB UDP object to the Unity vCyton
@@ -32,7 +35,20 @@ classdef Robot < handle
             obj.udpActin = PnetClass(8889, 8888, '127.0.0.1');
             obj.udpActin.initialize();
 
-            obj.setAngles(obj.currentAngles, obj.gripperWidth);
+            if nargin == 1
+                if strcmp(gripper, 'closed')
+                    obj.close()
+                else
+                    obj.open()
+                end
+            else
+                obj.open()
+            end
+        end
+
+        function delete(obj)
+            obj.udpUnity.close();
+            obj.udpActin.close();
         end
 
         function robotStruct = createDHCyton(obj)
@@ -169,7 +185,15 @@ classdef Robot < handle
         end
 
         function home(obj)
-            obj.setAngles([0 pi/8 0 pi/3 0 pi/4 0], obj.gripperWidth);
+            obj.setAngles(obj.homeAngles, obj.gripperWidth);
+        end
+
+        function setAdjustedHome(obj)
+            obj.adjustedHomeAngles = obj.currentAngles;
+        end
+
+        function adjustedHome(obj)
+            obj.setAngles(obj.adjustedHomeAngles, obj.gripperWidth)
         end
 
         function setVirtualAngles(obj, angles, gripper)
@@ -276,11 +300,11 @@ classdef Robot < handle
         end
 
         function up(obj)
-            obj.move([0 0 obj.stepVelocity]');
+            obj.move([0 0 obj.stepVelocity * 0.5]');
         end
 
         function down(obj)
-            obj.move([0 0 -obj.stepVelocity]');
+            obj.move([0 0 -obj.stepVelocity * 0.5]');
         end
 
         function in(obj)

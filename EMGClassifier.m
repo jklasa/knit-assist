@@ -5,10 +5,14 @@ classdef EMGClassifier < handle
         modeFilter
     end
     methods
-        function obj = EMGClassifier(myoband, trainingDataPath, smoothingWindow)
+        function obj = EMGClassifier(myoband, trainingDataPath, smoothingWindow, smoothingThreshold)
             obj.myoband = myoband;
             obj.model = obj.loadModel(trainingDataPath);
-            obj.modeFilter = ModeFilter(smoothingWindow);
+            obj.modeFilter = ModeFilter(smoothingWindow, smoothingThreshold);
+        end
+
+        function reset(obj)
+            obj.modeFilter.reset();
         end
 
         function model = loadModel(~, trainingDataPath)

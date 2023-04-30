@@ -33,13 +33,13 @@ myoband.initialize();
 
 %%
 % Init classifiers
-dataName = 'amy_all';
+dataName = 'amy_sunday_all';
 dataFile = strcat('data/', dataName, '.trainingData');
 
-gestureModel = EMGClassifier(myoband, dataFile, 8);
-stitchModel = EMGClassifier(myoband, dataFile, 4);
-leapModel = LeapClassifier(8);
+gestureModel = EMGClassifier(myoband, dataFile, 8, 4);
+stitchModel = EMGClassifier(myoband, dataFile, 16, 7);
+leapModel = LeapClassifier(12, 6);
 
 %%
 % Set robot to ready stage such that the gripper points down
-rob = Robot();
+rob = Robot('closed');
